@@ -1,9 +1,15 @@
 package com.opixxx.ecommerce.controller;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -20,6 +26,7 @@ import com.opixxx.ecommerce.controller.dto.ProductOptionRequest;
 import com.opixxx.ecommerce.controller.dto.ProductUpdateRequest;
 import com.opixxx.ecommerce.controller.mapper.ProductControllerMapper;
 import com.opixxx.ecommerce.service.ProductService;
+import com.opixxx.ecommerce.service.dto.PaginationDto;
 import com.opixxx.ecommerce.service.dto.ProductDto;
 
 import lombok.RequiredArgsConstructor;
@@ -31,6 +38,7 @@ public class ProductController {
 	private final ProductService productService;
 	private final ProductControllerMapper mapper;
 
+	//O
 	@PostMapping
 	public ResponseEntity<ApiResponse<ProductDto.CreatedProduct>> createProduct(
 		@RequestBody ProductCreateRequest request
@@ -48,8 +56,42 @@ public class ProductController {
 	}
 
 	@GetMapping
-	public ResponseEntity<ApiResponse<ProductListResponse>> getProducts(@RequestBody ProductListRequest request) {
-		ProductListResponse products = productService.getProducts(mapper.toProductDtoListRequest(request));
+	public ResponseEntity<ApiResponse<ProductListResponse>> getProducts(
+		@RequestParam(defaultValue = "1") Integer page,
+		@RequestParam(defaultValue = "10") Integer perPage,
+		@RequestParam(defaultValue = "created_at:desc") String sort,
+		@RequestParam(required = false) String status,
+		@RequestParam(required = false) BigDecimal minPrice,
+		@RequestParam(required = false) BigDecimal maxPrice,
+		@RequestParam(required = false) List<Long> category,
+		@RequestParam(required = false) Long seller,
+		@RequestParam(required = false) Long brand,
+		@RequestParam(required = false) Boolean inStock,
+		@RequestParam(required = false) List<Long> tag,
+		@RequestParam(required = false) String search,
+		@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate createdFrom,
+		@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate createdTo
+	) {
+		ProductDto.ListRequest request = ProductDto.ListRequest.builder()
+			.status(status)
+			.minPrice(minPrice)
+			.maxPrice(maxPrice)
+			.category(category)
+			.seller(seller)
+			.brand(brand)
+			.inStock(inStock)
+			.tag(tag)
+			.search(search)
+			.createdFrom(createdFrom)
+			.createdTo(createdTo)
+			.pagination(PaginationDto.PaginationRequest.builder()
+				.page(page)
+				.size(perPage)
+				.sort(sort)
+				.build())
+			.build();
+
+		ProductListResponse products = productService.getProducts(request);
 		return ResponseEntity.ok(ApiResponse.success(products, "상품 목록을 성공적으로 조회했습니다."));
 	}
 

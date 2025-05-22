@@ -151,6 +151,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public ProductListResponse getProducts(ProductDto.ListRequest request) {
 		// Specification 생성 및 조합
 		Specification<Product> spec = Specification.where(null);
