@@ -11,7 +11,9 @@ public enum ErrorCode {
 
 	DUPLICATE_SLUG(400, "Duplicate Slug"),
 	OPTION_PRODUCT_MISMATCH(400, "Mismatch Option Product"),
-	NOT_FOUND_RESOURCE(404, "NotFound Resource");
+	NOT_FOUND_RESOURCE(404, "NotFound Resource"),
+	ACCESS_DENIED(403, "Access Denied");
+
 	private final int code;
 	private final String message;
 
